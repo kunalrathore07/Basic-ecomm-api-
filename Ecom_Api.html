@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Ecom Product Api </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+        .box {
+            /* height: 300px; */
+            border: 0.1px solid red;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="container">
+            <div class="row">
+                <h1 class="text-center my-3"> Ecom Product Api </h1>
+
+                <div class="col-3 box">
+                    <h3 class="text-center my-1"> Category </h3>
+                    <div id="category">
+
+                    </div>
+                </div>
+
+    
+                <div class="col-9 box">
+                    <h3 class="text-center my-3"> Products </h3>
+                    <div id="products" class="row justify-content-around gy-3">
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+<script>
+
+    let categoryDiv = document.querySelector('#category');
+
+    let productsDiv = document.querySelector('#products');
+    
+    let allCategory = [];
+
+    let allChecks = []; 
+
+    let displayData = async(selectCate = []) => {
+
+        console.log(selectCate);
+
+        productsDiv.innerHTML = '';
+
+        let apiUrl = `https://fakestoreapi.com/products`;
+
+        let fetchData = await fetch(apiUrl);
+
+        let finalData = await fetchData.json();
+
+        finalData.forEach(element => {
+
+            if(!allCategory.includes(element.category)) {
+
+                allCategory.push(element.category);
+
+                categoryDiv.innerHTML += `
+
+                    <label class="d-block my-3">
+                        <input type="checkbox" value="${element.category}" onclick="getCategory()" />
+                        ${element.category}
+                    </label>
+                
+                `;
+            }
+
+            if(selectCate.length == 0) {
+
+                selectCate =  allCategory
+            }
+
+            if(selectCate.includes(element.category)) {
+
+                let box = `
+
+                <div class="card col-3 mx-2">
+                    <img src="${element.image}" class="card-img-top" alt="..." style="height: 200px;">
+                    <div class="card-body">
+                        <p class="card-text">
+                            Price Rs. ${element.price} | Rating ${element.rating.rate}
+                        </p>
+                        <h5 class="card-title"> ${element.title} </h5>
+                    </div>
+                </div>
+            
+            `;
+
+            productsDiv.innerHTML+=box;
+
+            }
+
+            
+        });
+    }
+
+    let getCategory = () => {
+
+        allChecks = [];
+
+        let allCheckbox = document.querySelectorAll('input[type="checkbox"]');
+
+        allCheckbox.forEach(
+            (element) => {
+
+                if(element.checked) {
+
+                    if(!allChecks.includes(element.value)) {
+
+                        allChecks.push(element.value);
+                    }
+                    
+                }
+
+            }
+        );
+
+        displayData(allChecks);
+    }
+
+    displayData();
+
+</script>
+</html>
