@@ -1,139 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Ecom Product Api </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-
-        .box {
-            /* height: 300px; */
-            border: 0.1px solid red;
-        }
-
-    </style>
+    <title>basic ecomm api | asycn await </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
+<style>
+    .img_height {
+        height: 250px;
+        object-fit: contain;
+    }
+
+    .font_size {
+        font-size: 50px;
+    }
+</style>
+
 <body>
     <div class="container-fluid">
         <div class="container">
             <div class="row">
-                <h1 class="text-center my-3"> Ecom Product Api </h1>
-
-                <div class="col-3 box">
-                    <h3 class="text-center my-1"> Category </h3>
+                <h1 class="text-center my-5 font_size">Ecomm Product API</h1>
+                <div class="col-3">
+                    <h2 class="text-center my-1"> CATEGORY </h2>
                     <div id="category">
 
                     </div>
                 </div>
+                <div class="col-9 row ">
+                    <h2 class="text-center my-1"> PRODUCTS </h2>
+                    <div id="products" class="row justify-content-around">
 
-    
-                <div class="col-9 box">
-                    <h3 class="text-center my-3"> Products </h3>
-                    <div id="products" class="row justify-content-around gy-3">
-                        
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
 </body>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+
 <script>
+    let categoryDiv = document.getElementById('category');
+    let productDiv = document.querySelector('#products');
 
-    let categoryDiv = document.querySelector('#category');
 
-    let productsDiv = document.querySelector('#products');
-    
-    let allCategory = [];
 
-    let allChecks = []; 
+    let api = `https://fakestoreapi.com/products`;
 
-    let displayData = async(selectCate = []) => {
+    let cat = []; //all category was store in this array
 
-        console.log(selectCate);
+    let allcheck = []; // all ckecked category was store in this array
 
-        productsDiv.innerHTML = '';
+    async function getdata(selectcate = []) {
 
-        let apiUrl = `https://fakestoreapi.com/products`;
+        productDiv.innerHTML = '';
 
-        let fetchData = await fetch(apiUrl);
 
-        let finalData = await fetchData.json();
+        let response = await fetch(api);
+        let finaldata = await response.json();
 
-        finalData.forEach(element => {
+        finaldata.forEach(
+            (value) => {
 
-            if(!allCategory.includes(element.category)) {
+                if (!cat.includes(value.category)) {
+                    cat.push(value.category);
+                    categoryDiv.innerHTML += `
+                            <label   class="d-block m-3 px-5" > 
+                                <input type="checkbox" value="${value.category}" onclick="getcategory()"/>
+                                ${value.category}
+                            </label>
+                        `;
+                }
 
-                allCategory.push(element.category);
+                // this condition will work only if none of the categories are checked or when file run at very first time
+                if (selectcate.length == 0) {
+                    selectcate = cat;
+                }
 
-                categoryDiv.innerHTML += `
+                // this condition show the all product 
+                if (selectcate.includes(value.category)) {
 
-                    <label class="d-block my-3">
-                        <input type="checkbox" value="${element.category}" onclick="getCategory()" />
-                        ${element.category}
-                    </label>
-                
-                `;
-            }
+                    let box = ` <div class="card col-3 m-2">
+                                            <img src="${value.image}" class="card-img-top img_height p-3" alt="...">
+                                            <div class="card-body">
+                                                <p class="card-text f_size"> Rs ${value.price} |  Rating ${value.rating.rate}  </p>
+                                                <h6 class="card-title"> ${value.title} </h6>
+                                            </div>
+                                        </div>
+                                    `;
 
-            if(selectCate.length == 0) {
-
-                selectCate =  allCategory
-            }
-
-            if(selectCate.includes(element.category)) {
-
-                let box = `
-
-                <div class="card col-3 mx-2">
-                    <img src="${element.image}" class="card-img-top" alt="..." style="height: 200px;">
-                    <div class="card-body">
-                        <p class="card-text">
-                            Price Rs. ${element.price} | Rating ${element.rating.rate}
-                        </p>
-                        <h5 class="card-title"> ${element.title} </h5>
-                    </div>
-                </div>
-            
-            `;
-
-            productsDiv.innerHTML+=box;
-
-            }
-
-            
-        });
-    }
-
-    let getCategory = () => {
-
-        allChecks = [];
-
-        let allCheckbox = document.querySelectorAll('input[type="checkbox"]');
-
-        allCheckbox.forEach(
-            (element) => {
-
-                if(element.checked) {
-
-                    if(!allChecks.includes(element.value)) {
-
-                        allChecks.push(element.value);
-                    }
-                    
+                    productDiv.innerHTML += box;
                 }
 
             }
         );
-
-        displayData(allChecks);
     }
 
-    displayData();
+
+    // this funticon get which category was checked 
+    let getcategory = () => {
+
+        allcheck = [];
+
+        let allcheckbox = document.querySelectorAll("input[type='checkbox']")
+
+        allcheckbox.forEach(
+            (element) => {
+                if (element.checked) {
+
+                    if (!allcheck.includes(element.value)) {
+
+                        allcheck.push(element.value);
+
+                    }
+                }
+            })
+
+        getdata(allcheck); // return all selected category to selectcate 
+    }
+
+    getdata();
+
 
 </script>
+
 </html>
